@@ -682,7 +682,7 @@ window.addEventListener('hashchange',()=>{fromHash();render()});
 fromHash();
 const J=u=>fetch(u,{cache:'no-cache'}).then(r=>r.json());
 Promise.all([J('datos/p7.json'),J('datos/p11.json'),J('datos/fem.json'),J('datos/cal.json'),J('datos/config.json').catch(()=>({}))]).then(([p7,p11,fem,cal,cfg])=>{
-  DATA={p7,p11,fem};CAL=cal;CONFIG=cfg||{};if(CONFIG.publico)ADMIN=false;LOADED=true;render();
+  DATA={p7,p11,fem};CAL=cal;CONFIG=cfg||{};if(CONFIG.publico)ADMIN=false;fromHash();LOADED=true;render();
 }).catch(err=>{$('#main').innerHTML='<div class="empty">No se pudieron cargar los datos. Recargá la página.</div>'});
 fetch('crests.json').then(r=>r.json()).then(j=>{Object.assign(CR,j);if(j.LOGO){const l=document.getElementById('logo');l.src=j.LOGO;l.style.display='';document.getElementById('logotxt').style.display='none'}render()}).catch(()=>{});
 /* ===== Botón claro / oscuro ===== */
