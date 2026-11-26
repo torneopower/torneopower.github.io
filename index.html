@@ -413,6 +413,8 @@ function nav(){
 }
 
 function zoneChips(){const d=D();if(!d.zonas)return'';return `<div class="seg">${Object.keys(d.zonas).map(z=>`<button class="${st.z===z?'on':''}" data-z="${z}">${d.zonas[z]}</button>`).join('')}</div>`}
+function zgChips(){const d=D();if(!d.zonas)return'';const zg=st.zg||'G';return `<div class="sub"><div class="seg"><button class="${zg==='G'?'on':''}" data-zg="G">General</button>${Object.keys(d.zonas).map(z=>`<button class="${zg===z?'on':''}" data-zg="${z}">${d.zonas[z]}</button>`).join('')}</div></div>`}
+function inZg(id){const d=D();const zg=st.zg||'G';return !d.zonas||zg==='G'||(tm(id)||{}).z===zg}
 function vHome(){
   const hoy=new Date();hoy.setHours(0,0,0,0);const fin=new Date(hoy.getTime()+7*864e5);
   const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -539,10 +541,10 @@ function vGol(){
   (gb.rows||[]).forEach(r=>add(r[0],r[1],+r[2]||0,'p'));
   {const bk=new Set((gb.rows||[]).map(r=>pk(r[0])));d.matches.filter(m=>fnumM(m)<=hg).forEach(m=>['h','a'].forEach(k=>((m.gol||{})[k]||[]).forEach(n=>{const nn=String(n).replace(/^\s*\d+'\s*/,'');if(!bk.has(pk(nn)))add(nn,m[k],1,'m')})))}
   d.matches.filter(m=>fnumM(m)>hg).forEach(m=>['h','a'].forEach(k=>((m.gol||{})[k]||[]).forEach(n=>add(String(n).replace(/^\s*\d+'\s*/,''),m[k],1,'m'))));
-  const L=Object.values(P).map(x=>({...x,g:x.m+x.p})).filter(x=>x.g>0).sort((a,b)=>b.g-a.g||canon(pk(a.n)).localeCompare(canon(pk(b.n))));
-  if(!L.length)return'<div class="fempty">Todavía no hay goleadores.</div>';
+  const L=Object.values(P).map(x=>({...x,g:x.m+x.p})).filter(x=>x.g>0&&inZg(x.e)).sort((a,b)=>b.g-a.g||canon(pk(a.n)).localeCompare(canon(pk(b.n))));
+  if(!L.length)return zgChips()+'<div class="fempty">Todavía no hay goleadores.</div>';
   let pos=0,last=null;
-  return `<table><tr><th>#</th><th class="eq">Jugador</th><th class="eq">Equipo</th><th>Goles</th></tr>${L.map((x,i)=>{if(x.g!==last){pos=i+1;last=x.g}return `<tr><td>${pos}</td><td class="eq">${plink(x.n)}</td><td class="eq" data-team="${x.e}">${esc(tm(x.e).n)}</td><td class="pts">${x.g}</td></tr>`}).join('')}</table>`;
+  return zgChips()+`<table><tr><th>#</th><th class="eq">Jugador</th><th class="eq">Equipo</th><th>Goles</th></tr>${L.map((x,i)=>{if(x.g!==last){pos=i+1;last=x.g}return `<tr><td>${pos}</td><td class="eq">${plink(x.n)}</td><td class="eq" data-team="${x.e}">${esc(tm(x.e).n)}</td><td class="pts">${x.g}</td></tr>`}).join('')}</table>`;
 }
 function vFalta(){
   const d=D();
@@ -631,7 +633,7 @@ function susp(x){if(!x.fn||x.rest)return'';const out=[],pay=[];for(let i=1;i<=(x
   if(pay.length)s+=`${s?' · ':''}Fecha ${pay.join(' y ')}: juega solo si paga`;
   return s+` · Vuelve${pay.length?' sin pagar':''} en la fecha ${back}`}
 function vTar(){
-  const d=D();const S=(d.sanciones||[]).filter(x=>!x.rest);
+  const d=D();const S=(d.sanciones||[]).filter(x=>!x.rest&&(!x.eq||inZg(x.eq)));
   const fnum=f=>{const r=String(f).match(/Fecha (\d+)/);return r?+r[1]:null};
   const isLate=m=>m.date&&new Date(m.date+'T23:59')<new Date();
   const groups={};d.matches.forEach(m=>(groups[m.f]=groups[m.f]||[]).push(m));
@@ -640,7 +642,7 @@ function vTar(){
   const nextK=keys.find(k=>!groups[k].length||groups[k].some(m=>!played(m)&&!isLate(m)));
   const N=nextK?fnum(nextK):null;
   const status=x=>{if(!x.fn||!N)return null;const c=x.cumple||0,p=x.paga||0;if(N>x.fn&&N<=x.fn+c)return{t:'out',i:N-x.fn,of:c+p};if(N>x.fn+c&&N<=x.fn+c+p)return{t:'pay',i:N-x.fn,of:c+p};return null};
-  let h='';
+  let h=zgChips();
   if(nextK){
     const L=S.map(x=>({x,s:status(x)})).filter(o=>o.s);
     h+=`<div class="fh2"><b>No pueden jugar · ${esc(nextK)}</b><span></span></div>`;
@@ -654,7 +656,7 @@ function vTar(){
   const T2={},ab=d.amarillasAcum||{},ha=+ab.hasta||0;
   (ab.rows||[]).forEach(([n,e,c])=>{T2[e]=T2[e]||{};const q=pk(n);T2[e][q]=T2[e][q]||{n,c:0};T2[e][q].c+=(+c||0)});
   d.matches.filter(m=>fnumM(m)>ha).forEach(m=>['h','a'].forEach(k=>((m.tar||{})[k]||[]).forEach(([n,c])=>{if(c==='R')return;const e=m[k];T2[e]=T2[e]||{};const q=pk(n);T2[e][q]=T2[e][q]||{n,c:0};T2[e][q].c++})));
-  const eqs=Object.keys(T2).sort((a,b)=>tm(a).n.localeCompare(tm(b).n));
+  const eqs=Object.keys(T2).filter(inZg).sort((a,b)=>tm(a).n.localeCompare(tm(b).n));
   h+=`<div style="height:18px"></div><div class="fh2"><b>Amarillas por equipo</b><span>${ADMIN&&ab.hasta?esc(ab.src||'')+' + fechas siguientes':'Acumuladas en el torneo'}</span></div>`;
   if(!eqs.length)h+='<div class="fempty">Todavía no hay amarillas.</div>';
   h+=eqs.map(e=>{const T=tm(e);const ps=Object.values(T2[e]).sort((a,b)=>b.c-a.c||a.n.localeCompare(b.n));
@@ -690,11 +692,12 @@ document.addEventListener('click',e=>{
   const cm=e.target.closest('[data-cm]');if(cm){calM=new Date(calM.getFullYear(),calM.getMonth()+(+cm.dataset.cm),1);render();return}
   const pl=e.target.closest('[data-pl]');if(pl){st.pl=pl.dataset.pl;window.scrollTo(0,0);render();return}
   if(e.target.closest('[data-plback]')){st.pl=null;render();return}
-  const b=e.target.closest('[data-t],[data-v],[data-f],[data-z],[data-team],[data-back]');if(!b)return;if(b.dataset.team&&b.closest('summary'))e.preventDefault();st.pl=null;
-  if(b.dataset.t){st.t=b.dataset.t;st.team=null;st.z='A';if(st.t!=='cal'&&!V.some(x=>x[0]===st.v))st.v='fixture'}
+  const b=e.target.closest('[data-t],[data-v],[data-f],[data-z],[data-zg],[data-team],[data-back]');if(!b)return;if(b.dataset.team&&b.closest('summary'))e.preventDefault();st.pl=null;
+  if(b.dataset.t){st.t=b.dataset.t;st.team=null;st.z='A';st.zg='G';if(st.t!=='cal'&&!V.some(x=>x[0]===st.v))st.v='fixture'}
   if(b.dataset.v){st.v=b.dataset.v;st.team=null}
   if(b.dataset.f)st.f=b.dataset.f;
   if(b.dataset.z){st.z=b.dataset.z}
+  if(b.dataset.zg){st.zg=b.dataset.zg}
   if(b.dataset.team){st.v='equipos';st.team=b.dataset.team;const z=tm(b.dataset.team).z;if(z)st.z=z;window.scrollTo(0,0)}
   if('back' in b.dataset)st.team=null;
   render();
