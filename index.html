@@ -348,6 +348,26 @@ b,strong{font-weight:500}
 .qi b{font-weight:500;flex:none}.qi span{color:var(--mut);font-size:12px;text-align:right}.qn{padding:10px 14px;color:var(--mut);font-size:13px}
 td.pts,td.eq,.tm b,.yeh b,.ct b,.list b,.team b,.eqf2 b,.mini b,html:not(.dark) .m2 .tt.win b{font-weight:500}
 </style>
+<style id="inicio-v2">
+/* Inicio más compacto */
+.tcards{gap:10px}
+.tcard{padding:12px 14px;border-left-width:4px;border-radius:12px}
+.tc-top{display:flex;justify-content:space-between;align-items:center}
+.tcard h3{font-size:19px!important;margin:0!important;line-height:1.1}
+.tcard .go{font-size:22px}
+.tcard .mu{font-size:13.5px;margin:4px 0 0}
+.tbtn{margin-top:10px;gap:6px}
+.tbtn button{padding:4px 11px;font-size:12.5px}
+#main>h2{margin-top:22px}
+/* Inicio y calendario: color oscuro neutro para que el texto blanco se lea */
+html:not(.dark) body.cal{--c:#2f3b44}
+/* Cabezal: color sólido detrás del logo y las pestañas (sin degradé que lave el texto) */
+html:not(.dark) header{background:linear-gradient(180deg,var(--c) 0,var(--c) calc(100% - var(--vh,0px)),var(--bg) calc(100% - var(--vh,0px)))!important}
+html:not(.dark) .views{border-bottom:1px solid var(--line)}
+/* Subpestañas: sin el difuminado fijo que cortaba "Info"; solo se difumina si hay más para deslizar */
+.views{-webkit-mask-image:none!important;mask-image:none!important;padding-right:14px!important;scroll-padding:0 14px}
+.views.mas{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent)!important;mask-image:linear-gradient(90deg,#000 calc(100% - 36px),transparent)!important}
+</style>
 </head>
 <body class="p7">
 <div class="wrap">
@@ -403,9 +423,10 @@ function vHome(){
   h+='<h2>Torneos</h2><div class="tcards">'+T.map(t=>{const d=DATA[t],ms=d.matches;
     const lastF=[...ms].reverse().find(played);
     const next=ms.find(m=>!played(m)&&!(m.date&&new Date(m.date+'T23:59')<new Date())&&(!lastF||fnumM(m)>=fnumM(lastF)));
-    const l1=lastF?`Última fecha jugada: ${esc(lastF.f)}`:'Todavía no se jugó ninguna fecha';
-    const l2=next?`Próxima: ${esc(next.f)}${next.date?' · '+fdate(next.date):''}`:(d.proximas&&d.proximas[0]?`Próxima: ${esc(d.proximas[0][0])} · ${fdate(d.proximas[0][1])}`:'');
-    return `<div class="tcard" data-t="${t}" data-v="fixture" style="--tc:${col[t]}"><h3>${esc(d.full)}<span class="go">›</span></h3><div class="mu">${l1}</div>${l2?`<div class="mu">${l2}</div>`:''}<div class="tbtn"><button data-t="${t}" data-v="fixture">Fixture</button><button data-t="${t}" data-v="posiciones">Posiciones</button><button data-t="${t}" data-v="goleadores">Goleadores</button></div></div>`}).join('')+'</div>';
+    const enJuego=lastF&&next&&next.f===lastF.f;
+    const nx=next?`${esc(next.f)}${next.date?' · '+fdate(next.date):''}`:(d.proximas&&d.proximas[0]?`${esc(d.proximas[0][0])} · ${fdate(d.proximas[0][1])}`:'');
+    const meta=enJuego?`${esc(lastF.f)} en juego${next.date?' · sigue '+fdate(next.date):''}`:[lastF?'Jugada: '+esc(lastF.f):'',nx?(lastF?'Próxima: ':'Arranca: ')+nx:''].filter(Boolean).join(' · ');
+    return `<div class="tcard" data-t="${t}" data-v="fixture" style="--tc:${col[t]}"><div class="tc-top"><h3>${esc(d.full)}</h3><span class="go">›</span></div>${meta?`<div class="mu">${meta}</div>`:''}<div class="tbtn"><button data-t="${t}" data-v="fixture">Fixture</button><button data-t="${t}" data-v="posiciones">Posiciones</button><button data-t="${t}" data-v="goleadores">Goleadores</button></div></div>`}).join('')+'</div>';
   return h;
 }
 
@@ -757,6 +778,18 @@ document.addEventListener('click',e=>{
 },true);
 fetch('crests-p11.json').then(r=>r.json()).then(j=>{Object.assign(CR,j);render()}).catch(()=>{});
 fetch('crests-fem.json').then(r=>r.json()).then(j=>{Object.assign(CR,j);render()}).catch(()=>{});
+
+/* Inicio v2: alto de subpestañas para el cabezal + difuminado solo si hay más para deslizar */
+(function(){const _r=render;render=function(){_r.apply(this,arguments);ajusta()};
+  function ajusta(){const v=document.getElementById('views'),h=document.querySelector('header');if(!v||!h)return;
+    h.style.setProperty('--vh',(v.innerHTML.trim()?v.offsetHeight:0)+'px');
+    const on=v.querySelector('.on');if(on){const l=on.offsetLeft,r=l+on.offsetWidth;if(r>v.scrollLeft+v.clientWidth-14||l<v.scrollLeft)v.scrollLeft=Math.max(0,r-v.clientWidth+28)}
+    marca(v)}
+  function marca(v){v.classList.toggle('mas',v.scrollLeft+v.clientWidth<v.scrollWidth-4)}
+  document.addEventListener('scroll',e=>{if(e.target&&e.target.id==='views')marca(e.target)},true);
+  window.addEventListener('resize',ajusta);
+  window.addEventListener('scroll',()=>setTimeout(()=>{const v=document.getElementById('views'),h=document.querySelector('header');if(v&&h)h.style.setProperty('--vh',(v.innerHTML.trim()?v.offsetHeight:0)+'px')},0),{passive:true});
+  ajusta()})();
 </script>
 </body>
 </html>
