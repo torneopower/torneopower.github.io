@@ -208,7 +208,7 @@ details.m2>summary::-webkit-details-marker{display:none}
 .m2 .rw{grid-template-columns:12px 1fr 58px 1fr 12px}
 .m2 .gg{grid-template-columns:12px 1fr 58px 1fr 12px}
 .m2 .cs{display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center}
-.m2 .cs i{display:block;width:7px;height:10px;border-radius:1.5px;background:#E8263A}
+.m2 .cs i{display:block;width:7px;height:10px;border-radius:1.5px;background:#E8263A} .m2 .cs i.y{background:#F5C518}
 /* ===== Modo claro (por defecto) ===== */
 html:not(.dark){background:#f4f6f7}
 html:not(.dark) body{--bg:#f4f6f7;--card:#ffffff;--line:#e2e7ea;--tx:#151a1d;--mut:#6b7780;background:var(--bg);color:var(--tx)}
@@ -739,7 +739,7 @@ function matchCard(m){
   const has=pub.length||(ADMIN&&adm.length);
   const center=p?`<div class="n">${m.gh} - ${m.ga}</div><small>${m.wo?'W.O.':'Final'}</small>`:'<div class="n vs">VS</div>';
   const gh=p?gols(g.h):'',ga=p?gols(g.a):'';
-  const cnt=k=>{const r=((m.tar||{})[k]||[]).filter(x=>x[1]==='R').length;return `<div class="cs">${'<i></i>'.repeat(r)}</div>`};
+  const cnt=k=>{const t=(m.tar||{})[k]||[],r=t.filter(x=>x[1]==='R').length,y=t.length-r;return `<div class="cs">${'<i class="y"></i>'.repeat(y)}${'<i></i>'.repeat(r)}</div>`};
   const gl=gh||ga?`<div class="gg"><div></div><div class="l">${gh}</div><div></div><div>${ga}</div><div></div></div>`:'';
   return `<details class="m2"><summary>${meta?`<div class="mt">${esc(meta)}</div>`:''}<div class="rw">${cnt('h')}<div class="tt l ${hw?'win':''}"><b data-team="${H.id}">${esc(H.n)}</b>${badge(H.n,H.id)}</div><div class="sc2">${center}</div><div class="tt ${aw?'win':''}">${badge(A.n,A.id)}<b data-team="${A.id}">${esc(A.n)}</b></div>${cnt('a')}</div>${gl}${late?'<div class="pn2">Resultado a confirmar</div>':''}${has?'<div class="mm"></div>':''}</summary>${has?`<div class="dw">${pub.join('')}${adm.join('')}</div>`:''}</details>`;
 }
