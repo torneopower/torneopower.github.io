@@ -337,6 +337,7 @@ b[data-team],td[data-team],.yeh[data-team],.eqf2 b[data-team]{cursor:pointer;tra
 .tcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 24px;margin-bottom:12px}
 .tl2{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--line);font-size:14px}
 .exm{color:var(--mut)}
+.dor{display:inline-block;min-width:20px;padding:0 5px;margin-left:4px;border-radius:5px;background:rgba(255,255,255,.08);color:var(--mut);font-size:11px;text-align:center}
 /* Inicio: título de cada torneo en su color · menos negritas (solo títulos) */
 .tcard h3,html:not(.dark) .tcard h3{color:var(--tc)}
 b,strong{font-weight:500}
@@ -520,7 +521,7 @@ function vEquipos(){
     return `<button class="back" data-back>← Todos los equipos</button><div class="panel"><div class="hd">${badge(t.n,t.id)}<div><b>${esc(t.n)}</b>${t.z?`<div class="src" style="text-align:left">${d.zonas[t.z]}</div>`:''}${(()=>{const fs=Object.entries(d.equipoFecha||{}).filter(x=>x[1]===st.team).map(x=>x[0]);return fs.length?`<div class="src" style="text-align:left">🏆 Equipo de la fecha: ${esc(fs.join(', '))}</div>`:''})()}</div></div>
     <h3>Plantel</h3>${(()=>{const ex=teamExtraPlayers(st.team,r?r.p:[]);const all=(r?r.p:[]).concat(ex);
       if(!all.length)return `<div class="empty" style="margin-top:8px">Plantel a confirmar${nt&&ADMIN?'<br><span style="color:var(--warn)">⚠ '+esc(nt)+'</span>':''}</div>`;
-      return `<ol class="pl">${all.map((p,i)=>`<li>${plink(p)}${i>=(r?r.p.length:0)?' <small class="exm">*</small>':''}</li>`).join('')}</ol>${r&&r.dt?`<div class="ct"><b>Cuerpo técnico</b>${[].concat(r.dt).map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:''}<div class="src" style="text-align:left">${r?esc(r.src)+' · ':'Sin lista oficial · '}${all.length} jugadores/as${ex.length?` · <span class="exm">*</span> ${ex.length} sumado${ex.length>1?'s':''} porque figura${ex.length>1?'n':''} en goles o tarjetas`:''}</div>`})()}<h3 style="margin-top:18px">En el torneo</h3>${teamStats(st.team)}</div>
+      return `<ol class="pl">${all.map((p,i)=>`<li>${plink(p)}${r&&r.num&&r.num[p]?' <small class="dor">'+esc(r.num[p])+'</small>':''}${i>=(r?r.p.length:0)?' <small class="exm">*</small>':''}</li>`).join('')}</ol>${r&&r.dt?`<div class="ct"><b>Cuerpo técnico</b>${[].concat(r.dt).map(x=>`<span>${esc(x)}</span>`).join('')}</div>`:''}<div class="src" style="text-align:left">${r?esc(r.src)+' · ':'Sin lista oficial · '}${all.length} jugadores/as${ex.length?` · <span class="exm">*</span> ${ex.length} sumado${ex.length>1?'s':''} porque figura${ex.length>1?'n':''} en goles o tarjetas`:''}</div>`})()}<h3 style="margin-top:18px">En el torneo</h3>${teamStats(st.team)}</div>
     ${ms.length?'<h2>Partidos</h2>'+ms.map(m=>`<div class="fh"><h3>${esc(m.f)}</h3><span></span></div>`+matchCard(m)).join(''):''}`;
   }
   let teams=d.teams;let h='';
