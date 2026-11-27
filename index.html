@@ -769,8 +769,9 @@ function vFixture(){
   const np=g.filter(played).length;
   const info=[g.length?'':days.join(' y '),g.length?`${np} de ${g.length} jugados`:''].filter(Boolean).join(' · ');
   h+=`<div class="fh2" data-fk="${esc(cur)}"><b>${esc(cur)}</b><span>${esc(info)}</span></div>`;
-  if(d.equipoFecha&&d.equipoFecha[cur])h+=`<div class="eqf2">🏆 Equipo de la fecha: <b data-team="${d.equipoFecha[cur]}">${esc(tm(d.equipoFecha[cur]).n)}</b></div>`;
+  if(d.equipoFecha&&d.equipoFecha[cur])h+=`<div class="eqf2">🏆 Equipo de la fecha: <b data-team="${d.equipoFecha[cur]}">${esc(tm(d.equipoFecha[cur]).n)}</b></div>`
   else if(np&&ADMIN)h+=`<div class="eqf2 adm">🏆 Equipo de la fecha: <i>a definir</i></div>`;
+  if(d.jugadorFecha&&d.jugadorFecha[cur]){const j=d.jugadorFecha[cur];h+=`<div class="eqf2">⭐ Jugador de la fecha: <b>${esc(j[0])}</b> · <span data-team="${j[1]}">${esc(tm(j[1]).n)}</span></div>`};
   if(d.arbitrosFecha&&d.arbitrosFecha[cur]&&d.arbitrosFecha[cur].length)h+=`<div class="eqf2" style="font-weight:400">Árbitros de la fecha: ${d.arbitrosFecha[cur].map(esc).join(' · ')}</div>`;
   h+=g.length?g.map(matchCard).join(''):'<div class="fempty">Cruces y horarios a confirmar</div>';
   return h;
